@@ -4,129 +4,214 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Taxi Trip Time Prediction</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Leaflet CSS -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <style>
-        body { font-family: Arial, sans-serif; max-width: 800px; margin: 0 auto; padding: 20px; }
-        .form-container { background-color: #f5f5f5; padding: 20px; border-radius: 5px; margin-bottom: 20px; }
-        .input-group { margin-bottom: 15px; }
-        label { display: block; margin-bottom: 5px; }
-        input, select { width: 100%; padding: 8px; box-sizing: border-box; }
-        button { background-color: #4CAF50; color: white; padding: 10px 15px; border: none; border-radius: 5px; cursor: pointer; }
-        button:hover { background-color: #45a049; }
-        .result { background-color: #e8f5e9; padding: 15px; border-radius: 5px; display: none; }
-        #map { height: 300px; width: 100%; }
-        .hidden { display: none; }
-        .instructions { font-style: italic; color: #555; margin-bottom: 10px; }
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            transition: background-color 0.3s, color 0.3s;
+        }
+        .dark-mode {
+            background-color: #1a1a1a;
+            color: #ffffff;
+        }
+        .dark-mode .form-container,
+        .dark-mode .result {
+            background-color: #2a2a2a;
+            color: #ffffff;
+        }
+        .dark-mode .btn-primary {
+            background-color: #007bff;
+            border-color: #007bff;
+        }
+        .dark-mode .btn-secondary {
+            background-color: #6c757d;
+            border-color: #6c757d;
+        }
+        .form-container {
+            background-color: #f5f5f5;
+            padding: 20px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+        #map {
+            height: 300px;
+            width: 100%;
+            border-radius: 5px;
+        }
+        .hidden {
+            display: none;
+        }
+        .instructions {
+            font-style: italic;
+            color: #555;
+            margin-bottom: 10px;
+        }
+        .distance-display {
+            margin-top: 10px;
+            font-weight: bold;
+        }
+        .dark-mode .instructions {
+            color: #bbb;
+        }
+        .dark-mode .form-control,
+        .dark-mode .form-select {
+            background-color: #333;
+            color: #fff;
+            border-color: #555;
+        }
+        .dark-mode .form-control::placeholder,
+        .dark-mode .form-select::placeholder {
+            color: #aaa;
+        }
     </style>
 </head>
 <body>
-    <h1>Taxi Trip Time Prediction</h1>
-    
-    <div class="form-container">
-        <form id="predictionForm" onsubmit="predictTripTime(event)">
-            <div class="input-group">
-                <label for="input_method">Input Method:</label>
-                <select id="input_method" name="input_method" onchange="toggleInput()">
-                    <option value="datetime">Hour/Day & Distance</option>
-                    <option value="map">Map (Lat/Long) & Hour/Day</option>
-                </select>
-            </div>
+    <div class="container">
+        <h1 class="my-4">Taxi Trip Time Prediction</h1>
 
-            <div id="datetime_inputs">
-                <div class="input-group">
-                    <label for="day_of_week_datetime">Day of Week:</label>
-                    <select id="day_of_week_datetime" name="day_of_week_datetime">
-                        <option value="0">Monday</option>
-                        <option value="1">Tuesday</option>
-                        <option value="2">Wednesday</option>
-                        <option value="3">Thursday</option>
-                        <option value="4">Friday</option>
-                        <option value="5">Saturday</option>
-                        <option value="6">Sunday</option>
-                    </select>
-                </div>
-                <div class="input-group">
-                    <label for="time_datetime">Time of Day:</label>
-                    <input type="time" id="time_datetime" name="time_datetime">
-                </div>
-                <div class="input-group">
-                    <label for="distance_km_datetime">Distance (km):</label>
-                    <input type="number" id="distance_km_datetime" name="distance_km_datetime" min="0" max="1000" step="0.1">
-                </div>
-                <div class="input-group">
-                    <label for="call_type_datetime">Call Type:</label>
-                    <select id="call_type_datetime" name="call_type_datetime">
-                        <option value="A">A (Central Dispatch)</option>
-                        <option value="B" selected>B (Street Hail)</option>
-                        <option value="C">C (Other)</option>
-                    </select>
-                </div>
-            </div>
+        <!-- Dark Mode Toggle -->
+        <div class="mb-3">
+            <button id="darkModeToggle" class="btn btn-secondary">Toggle Dark Mode</button>
+        </div>
 
-            <div id="map_inputs" class="hidden">
-                <div class="input-group">
-                    <label for="day_of_week_map">Day of Week:</label>
-                    <select id="day_of_week_map" name="day_of_week_map">
-                        <option value="0">Monday</option>
-                        <option value="1">Tuesday</option>
-                        <option value="2">Wednesday</option>
-                        <option value="3">Thursday</option>
-                        <option value="4">Friday</option>
-                        <option value="5">Saturday</option>
-                        <option value="6">Sunday</option>
-                    </select>
-                </div>
-                <div class="input-group">
-                    <label for="time_map">Time of Day:</label>
-                    <input type="time" id="time_map" name="time_map">
-                </div>
-                <div class="input-group">
-                    <label for="call_type_map">Call Type:</label>
-                    <select id="call_type_map" name="call_type_map">
-                        <option value="A">A (Central Dispatch)</option>
-                        <option value="B" selected>B (Street Hail)</option>
-                        <option value="C">C (Other)</option>
-                    </select>
-                </div>
-                <div class="instructions">
-                    Click once to set the start point, click again to set the end point. Click a third time to reset.
-                </div>
-                <div id="map"></div>
-                <input type="hidden" id="distance_km_map" name="distance_km_map" value="">
-            </div>
+        <!-- Backend Wake-Up Reminder -->
+        <div class="alert alert-info mb-4" role="alert">
+            <strong>Note:</strong> If the website is not responding, the backend service may be waking up. This can take up to a minute to get back online.
+        </div>
 
-            <div class="input-group">
-                <label for="model">Select Model:</label>
-                <select id="model" name="model" required>
-                    <option value="Linear Regression">Linear Regression</option>
-                    <option value="Ridge Regression">Ridge Regression</option>
-                    <option value="Decision Tree">Decision Tree</option>
-                    <option value="Random Forest">Random Forest</option>
-                    <option value="Gradient Boosting">Gradient Boosting</option>
-                    <!--option value="K-Neighbors">K-Neighbors</option-->
-                    <option value="XGBoost">XGBoost</option>
-                </select>
-            </div>
-            
-            <button type="submit">Predict Trip Time</button>
-        </form>
+        <div class="form-container">
+            <form id="predictionForm" onsubmit="predictTripTime(event)">
+                <div class="mb-3">
+                    <label for="input_method" class="form-label">Input Method:</label>
+                    <select id="input_method" name="input_method" class="form-select" onchange="toggleInput()">
+                        <option value="datetime">Hour/Day & Distance</option>
+                        <option value="map">Map (Lat/Long) & Hour/Day</option>
+                    </select>
+                </div>
+
+                <!-- Datetime Inputs -->
+                <div id="datetime_inputs">
+                    <div class="mb-3">
+                        <label for="day_of_week_datetime" class="form-label">Day of Week:</label>
+                        <select id="day_of_week_datetime" name="day_of_week_datetime" class="form-select">
+                            <option value="0">Monday</option>
+                            <option value="1">Tuesday</option>
+                            <option value="2">Wednesday</option>
+                            <option value="3">Thursday</option>
+                            <option value="4">Friday</option>
+                            <option value="5">Saturday</option>
+                            <option value="6">Sunday</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="time_datetime" class="form-label">Time of Day:</label>
+                        <input type="time" id="time_datetime" name="time_datetime" class="form-control" placeholder="e.g., 14:30" title="Select the time of day (24-hour format)">
+                    </div>
+                    <div class="mb-3">
+                        <label for="distance_km_datetime" class="form-label">Distance (km):</label>
+                        <input type="number" id="distance_km_datetime" name="distance_km_datetime" class="form-control" min="0" max="1000" step="0.1" placeholder="e.g., 5.5" title="Enter distance in kilometers (0-1000 km)">
+                    </div>
+                    <div class="mb-3">
+                        <label for="call_type_datetime" class="form-label">Call Type:</label>
+                        <select id="call_type_datetime" name="call_type_datetime" class="form-select">
+                            <option value="A">A (Central Dispatch)</option>
+                            <option value="B" selected>B (Street Hail)</option>
+                            <option value="C">C (Other)</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Map Inputs -->
+                <div id="map_inputs" class="hidden">
+                    <div class="mb-3">
+                        <label for="day_of_week_map" class="form-label">Day of Week:</label>
+                        <select id="day_of_week_map" name="day_of_week_map" class="form-select">
+                            <option value="0">Monday</option>
+                            <option value="1">Tuesday</option>
+                            <option value="2">Wednesday</option>
+                            <option value="3">Thursday</option>
+                            <option value="4">Friday</option>
+                            <option value="5">Saturday</option>
+                            <option value="6">Sunday</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="time_map" class="form-label">Time of Day:</label>
+                        <input type="time" id="time_map" name="time_map" class="form-control" placeholder="e.g., 14:30" title="Select the time of day (24-hour format)">
+                    </div>
+                    <div class="mb-3">
+                        <label for="call_type_map" class="form-label">Call Type:</label>
+                        <select id="call_type_map" name="call_type_map" class="form-select">
+                            <option value="A">A (Central Dispatch)</option>
+                            <option value="B" selected>B (Street Hail)</option>
+                            <option value="C">C (Other)</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Select City:</label>
+                        <div class="btn-group" role="group">
+                            <button type="button" class="btn btn-outline-primary" onclick="setCity('porto')">Porto</button>
+                            <button type="button" class="btn btn-outline-primary" onclick="setCity('hongkong')">Hong Kong</button>
+                        </div>
+                    </div>
+                    <div class="instructions">
+                        Click once to set the start point, click again to set the end point. Click a third time to reset.
+                    </div>
+                    <div id="map"></div>
+                    <div class="distance-display" id="distanceDisplay"></div>
+                    <div class="mt-2">
+                        <button type="button" class="btn btn-secondary" onclick="clearMap()">Clear Map</button>
+                    </div>
+                    <input type="hidden" id="distance_km_map" name="distance_km_map" value="">
+                </div>
+
+                <div class="mb-3">
+                    <label for="model" class="form-label">Select Model:</label>
+                    <select id="model" name="model" class="form-select" required>
+                        <option value="Random Forest">Random Forest</option>
+                        <option value="Gradient Boosting">Gradient Boosting</option>
+                    </select>
+                </div>
+                
+                <button type="submit" class="btn btn-primary">Predict Trip Time</button>
+            </form>
+        </div>
+        
+        <div id="result" class="result p-3 bg-light rounded"></div>
     </div>
-    
-    <div id="result" class="result"></div>
 
+    <!-- Bootstrap JS and Leaflet JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script>
-        let map, startMarker, endMarker;
+        let map, startMarker, endMarker, routeLine;
+        const cities = {
+            porto: { lat: 41.15, lng: -8.62, zoom: 13 },
+            hongkong: { lat: 22.3193, lng: 114.1694, zoom: 12 }
+        };
 
         function toggleInput() {
             const method = document.getElementById('input_method').value;
             document.getElementById('datetime_inputs').classList.toggle('hidden', method !== 'datetime');
             document.getElementById('map_inputs').classList.toggle('hidden', method !== 'map');
-            if (method === 'map' && !map) initMap();
+            if (method === 'map' && !map) initMap('porto');
         }
 
-        function initMap() {
-            map = L.map('map').setView([41.15, -8.62], 13);
+        function setCity(city) {
+            if (map) {
+                const { lat, lng, zoom } = cities[city];
+                map.setView([lat, lng], zoom);
+                clearMap();
+            }
+        }
+
+        function initMap(city) {
+            const { lat, lng, zoom } = cities[city];
+            map = L.map('map').setView([lat, lng], zoom);
             L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
                 attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
             }).addTo(map);
@@ -137,12 +222,11 @@
                 } else if (!endMarker) {
                     endMarker = L.marker(e.latlng).addTo(map).bindPopup('End');
                     calculateDistance(e.latlng);
+                    drawRoute();
+                    zoomToFit();
                 } else {
-                    map.removeLayer(startMarker);
-                    map.removeLayer(endMarker);
+                    clearMap();
                     startMarker = L.marker(e.latlng).addTo(map).bindPopup('Start');
-                    endMarker = null;
-                    document.getElementById('distance_km_map').value = '';
                 }
             });
         }
@@ -163,6 +247,32 @@
             const distance = R * c;
 
             document.getElementById('distance_km_map').value = distance.toFixed(2);
+            document.getElementById('distanceDisplay').innerText = `Calculated Distance: ${distance.toFixed(2)} km`;
+        }
+
+        function drawRoute() {
+            if (routeLine) map.removeLayer(routeLine);
+            const startLatLng = startMarker.getLatLng();
+            const endLatLng = endMarker.getLatLng();
+            routeLine = L.polyline([startLatLng, endLatLng], { color: 'blue' }).addTo(map);
+        }
+
+        function zoomToFit() {
+            if (startMarker && endMarker) {
+                const bounds = L.latLngBounds(startMarker.getLatLng(), endMarker.getLatLng());
+                map.fitBounds(bounds, { padding: [50, 50] });
+            }
+        }
+
+        function clearMap() {
+            if (startMarker) map.removeLayer(startMarker);
+            if (endMarker) map.removeLayer(endMarker);
+            if (routeLine) map.removeLayer(routeLine);
+            startMarker = null;
+            endMarker = null;
+            routeLine = null;
+            document.getElementById('distance_km_map').value = '';
+            document.getElementById('distanceDisplay').innerText = '';
         }
 
         async function predictTripTime(event) {
@@ -219,6 +329,17 @@
             } catch (error) {
                 alert('Error connecting to the server: ' + error.message);
             }
+        }
+
+        // Dark Mode Toggle
+        document.getElementById('darkModeToggle').addEventListener('click', () => {
+            document.body.classList.toggle('dark-mode');
+            localStorage.setItem('darkMode', document.body.classList.contains('dark-mode'));
+        });
+
+        // Load Dark Mode Preference
+        if (localStorage.getItem('darkMode') === 'true') {
+            document.body.classList.add('dark-mode');
         }
 
         window.onload = toggleInput;
