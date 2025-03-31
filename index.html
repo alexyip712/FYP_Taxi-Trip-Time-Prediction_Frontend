@@ -67,11 +67,6 @@
         .dark-mode .form-select::placeholder {
             color: #aaa;
         }
-        .input-group-row {
-            display: flex;
-            gap: 10px;
-            align-items: center;
-        }
         .result {
             padding: 20px;
             border-radius: 5px;
@@ -81,7 +76,6 @@
             width: 100%;
             height: auto;
         }
-        /* Improved alignment using Bootstrap grid */
         .form-section {
             margin-bottom: 1.5rem;
         }
@@ -92,7 +86,6 @@
             display: grid;
             gap: 1rem;
         }
-        /* Alert for Hong Kong reminder */
         #hongKongReminder {
             display: none;
         }
@@ -120,20 +113,19 @@
                         <!-- Input Method Section -->
                         <div class="form-section">
                             <label class="form-label">Input Method:</label>
-                            <div class="d-flex align-items-center">
-                                <div class="btn-group me-3" role="group">
-                                    <button type="button" class="btn btn-outline-primary" onclick="toggleInput('map')">Map</button>
-                                    <button type="button" class="btn btn-outline-primary" onclick="toggleInput('distance')">Distance</button>
-                                </div>
-                                <!-- Select Model -->
-                                <div>
-                                    <label for="model" class="form-label">Select Model:</label>
-                                    <select id="model" name="model" class="form-select" required>
-                                        <option value="Random Forest">Random Forest</option>
-                                        <option value="Gradient Boosting">Gradient Boosting</option>
-                                    </select>
-                                </div>
+                            <div class="btn-group" role="group">
+                                <button type="button" class="btn btn-outline-primary" onclick="toggleInput('map')">Map</button>
+                                <button type="button" class="btn btn-outline-primary" onclick="toggleInput('distance')">Distance</button>
                             </div>
+                        </div>
+
+                        <!-- Select Model Section -->
+                        <div class="form-section">
+                            <label for="model" class="form-label">Select Model:</label>
+                            <select id="model" name="model" class="form-select" required>
+                                <option value="Random Forest">Random Forest</option>
+                                <option value="Gradient Boosting">Gradient Boosting</option>
+                            </select>
                         </div>
 
                         <!-- Distance Inputs -->
@@ -202,13 +194,12 @@
                                     </select>
                                 </div>
                             </div>
-                            <div class="row">
-                                <div class="col-12">
-                                    <label class="form-label">Select City:</label>
-                                    <div class="btn-group" role="group">
-                                        <button type="button" class="btn btn-outline-primary" onclick="setCity('porto')">Porto</button>
-                                        <button type="button" class="btn btn-outline-primary" onclick="setCity('hongkong')">Hong Kong</button>
-                                    </div>
+                            <!-- Select City Section (Buttons Only) -->
+                            <div class="form-section">
+                                <label class="form-label">Select City:</label>
+                                <div class="btn-group" role="group">
+                                    <button type="button" class="btn btn-outline-primary" onclick="setCity('porto')">Porto</button>
+                                    <button type="button" class="btn btn-outline-primary" onclick="setCity('hongkong')">Hong Kong</button>
                                 </div>
                             </div>
                             <!-- Hong Kong Reminder -->
@@ -256,28 +247,39 @@
             hongkong: { lat: 22.3193, lng: 114.1694, zoom: 12 }
         };
         let currentInputMethod = 'map';
-        let currentCity = 'porto'; // Track the current city
+        let currentCity = 'porto';
 
         function toggleInput(method) {
             currentInputMethod = method;
-            document.getElementById('distance_inputs').classList.toggle('hidden', method !== 'distance');
-            document.getElementById('map_inputs').classList.toggle('hidden', method !== 'map');
-            document.getElementById('map_container').classList.toggle('hidden', method !== 'map');
-            document.getElementById('result').classList.remove('result-large');
+            const distanceInputs = document.getElementById('distance_inputs');
+            const mapInputs = document.getElementById('map_inputs');
+            const mapContainer = document.getElementById('map_container');
+            const result = document.getElementById('result');
+
+            // Hide all inputs and map container first
+            distanceInputs.classList.add('hidden');
+            mapInputs.classList.add('hidden');
+            mapContainer.classList.add('hidden');
+            result.classList.remove('result-large');
+
+            // Show the relevant inputs based on the method
             if (method === 'distance') {
-                document.getElementById('result').classList.add('result-large');
+                distanceInputs.classList.remove('hidden');
+                result.classList.add('result-large');
+            } else if (method === 'map') {
+                mapInputs.classList.remove('hidden');
+                mapContainer.classList.remove('hidden');
+                if (!map) initMap('porto');
             }
-            if (method === 'map' && !map) initMap('porto');
         }
 
         function setCity(city) {
-            currentCity = city; // Update the current city
+            currentCity = city;
             if (map) {
                 const { lat, lng, zoom } = cities[city];
                 map.setView([lat, lng], zoom);
                 clearMap();
             }
-            // Show/hide Hong Kong reminder
             document.getElementById('hongKongReminder').style.display = (city === 'hongkong') ? 'block' : 'none';
         }
 
