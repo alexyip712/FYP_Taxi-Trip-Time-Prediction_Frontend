@@ -21,7 +21,7 @@
         .dark-mode .form-container,
         .dark-mode .result {
             background-color: #2a2a2a;
-            color: #ffffff !important; /* Ensure Prediction Result text is light in dark mode */
+            color: #ffffff !important;
         }
         .dark-mode .btn-primary {
             background-color: #007bff;
@@ -38,7 +38,7 @@
             margin-bottom: 20px;
         }
         #map {
-            height: 400px; /* Increased height for better visibility */
+            height: 400px;
             width: 100%;
             border-radius: 5px;
         }
@@ -81,6 +81,21 @@
             width: 100%;
             height: auto;
         }
+        /* Improved alignment using Bootstrap grid */
+        .form-section {
+            margin-bottom: 1.5rem;
+        }
+        .form-section label {
+            font-weight: bold;
+        }
+        .grid-container {
+            display: grid;
+            gap: 1rem;
+        }
+        /* Alert for Hong Kong reminder */
+        #hongKongReminder {
+            display: none;
+        }
     </style>
 </head>
 <body>
@@ -102,31 +117,33 @@
             <div class="col-md-6">
                 <div class="form-container">
                     <form id="predictionForm" onsubmit="predictTripTime(event)">
-                        <!-- Input Method Buttons -->
-                        <div class="mb-3 d-flex align-items-center">
-                            <div class="btn-group me-3" role="group">
-                                <button type="button" class="btn btn-outline-primary" onclick="toggleInput('map')">Map</button>
-                                <button type="button" class="btn btn-outline-primary" onclick="toggleInput('distance')">Distance</button>
-                            </div>
-                            <!-- Select Model (Moved to the right of Input Method) -->
-                            <div>
-                                <label for="model" class="form-label">Select Model:</label>
-                                <select id="model" name="model" class="form-select" required>
-                                    <option value="Random Forest">Random Forest</option>
-                                    <option value="Gradient Boosting">Gradient Boosting</option>
-                                </select>
+                        <!-- Input Method Section -->
+                        <div class="form-section">
+                            <label class="form-label">Input Method:</label>
+                            <div class="d-flex align-items-center">
+                                <div class="btn-group me-3" role="group">
+                                    <button type="button" class="btn btn-outline-primary" onclick="toggleInput('map')">Map</button>
+                                    <button type="button" class="btn btn-outline-primary" onclick="toggleInput('distance')">Distance</button>
+                                </div>
+                                <!-- Select Model -->
+                                <div>
+                                    <label for="model" class="form-label">Select Model:</label>
+                                    <select id="model" name="model" class="form-select" required>
+                                        <option value="Random Forest">Random Forest</option>
+                                        <option value="Gradient Boosting">Gradient Boosting</option>
+                                    </select>
+                                </div>
                             </div>
                         </div>
 
                         <!-- Distance Inputs -->
-                        <div id="distance_inputs" class="hidden">
-                            <div class="mb-3 input-group-row">
-                                <div>
+                        <div id="distance_inputs" class="hidden grid-container">
+                            <div class="row">
+                                <div class="col-md-6">
                                     <label for="time_distance" class="form-label">Time of Day:</label>
                                     <input type="time" id="time_distance" name="time_distance" class="form-control" placeholder="e.g., 14:30" title="Select the time of day (24-hour format)">
                                 </div>
-                                <!-- Day of Week (Moved to the right of Time of Day) -->
-                                <div>
+                                <div class="col-md-6">
                                     <label for="day_of_week_distance" class="form-label">Day of Week:</label>
                                     <select id="day_of_week_distance" name="day_of_week_distance" class="form-select">
                                         <option value="0">Monday</option>
@@ -139,13 +156,12 @@
                                     </select>
                                 </div>
                             </div>
-                            <div class="mb-3 input-group-row">
-                                <div>
+                            <div class="row">
+                                <div class="col-md-6">
                                     <label for="distance_km_distance" class="form-label">Distance (km):</label>
                                     <input type="number" id="distance_km_distance" name="distance_km_distance" class="form-control" min="0" max="1000" step="0.1" placeholder="e.g., 5.5" title="Enter distance in kilometers (0-1000 km)">
                                 </div>
-                                <!-- Call Type (Moved to the right of Distance) -->
-                                <div>
+                                <div class="col-md-6">
                                     <label for="call_type_distance" class="form-label">Call Type:</label>
                                     <select id="call_type_distance" name="call_type_distance" class="form-select">
                                         <option value="A">A (Central Dispatch)</option>
@@ -157,14 +173,13 @@
                         </div>
 
                         <!-- Map Inputs -->
-                        <div id="map_inputs">
-                            <div class="mb-3 input-group-row">
-                                <div>
+                        <div id="map_inputs" class="grid-container">
+                            <div class="row">
+                                <div class="col-md-6">
                                     <label for="time_map" class="form-label">Time of Day:</label>
                                     <input type="time" id="time_map" name="time_map" class="form-control" placeholder="e.g., 14:30" title="Select the time of day (24-hour format)">
                                 </div>
-                                <!-- Day of Week (Moved to the right of Time of Day) -->
-                                <div>
+                                <div class="col-md-6">
                                     <label for="day_of_week_map" class="form-label">Day of Week:</label>
                                     <select id="day_of_week_map" name="day_of_week_map" class="form-select">
                                         <option value="0">Monday</option>
@@ -177,8 +192,8 @@
                                     </select>
                                 </div>
                             </div>
-                            <div class="mb-3 input-group-row">
-                                <div>
+                            <div class="row">
+                                <div class="col-md-6">
                                     <label for="call_type_map" class="form-label">Call Type:</label>
                                     <select id="call_type_map" name="call_type_map" class="form-select">
                                         <option value="A">A (Central Dispatch)</option>
@@ -187,21 +202,31 @@
                                     </select>
                                 </div>
                             </div>
-                            <div class="mb-3">
-                                <label class="form-label">Select City:</label>
-                                <div class="btn-group" role="group">
-                                    <button type="button" class="btn btn-outline-primary" onclick="setCity('porto')">Porto</button>
-                                    <button type="button" class="btn btn-outline-primary" onclick="setCity('hongkong')">Hong Kong</button>
+                            <div class="row">
+                                <div class="col-12">
+                                    <label class="form-label">Select City:</label>
+                                    <div class="btn-group" role="group">
+                                        <button type="button" class="btn btn-outline-primary" onclick="setCity('porto')">Porto</button>
+                                        <button type="button" class="btn btn-outline-primary" onclick="setCity('hongkong')">Hong Kong</button>
+                                    </div>
                                 </div>
                             </div>
-                            <div class="instructions">
-                                Click once to set the start point, click again to set the end point. Click a third time to reset.
+                            <!-- Hong Kong Reminder -->
+                            <div id="hongKongReminder" class="alert alert-warning mt-2">
+                                <strong>Reminder:</strong> The prediction may not be accurate for Hong Kong as the model was not trained on Hong Kong data.
                             </div>
-                            <div class="distance-display" id="distanceDisplay"></div>
-                            <div class="mt-2">
-                                <button type="button" class="btn btn-secondary" onclick="clearMap()">Clear Map</button>
+                            <div class="row">
+                                <div class="col-12">
+                                    <div class="instructions">
+                                        Click once to set the start point, click again to set the end point. Click a third time to reset.
+                                    </div>
+                                    <div class="distance-display" id="distanceDisplay"></div>
+                                    <div class="mt-2">
+                                        <button type="button" class="btn btn-secondary" onclick="clearMap()">Clear Map</button>
+                                    </div>
+                                    <input type="hidden" id="distance_km_map" name="distance_km_map" value="">
+                                </div>
                             </div>
-                            <input type="hidden" id="distance_km_map" name="distance_km_map" value="">
                         </div>
 
                         <button type="submit" class="btn btn-primary mt-3">Predict Trip Time</button>
@@ -211,11 +236,11 @@
 
             <!-- Right Side: Map and Prediction Result -->
             <div class="col-md-6">
-                <!-- Map (Moved to the right side) -->
+                <!-- Map -->
                 <div id="map_container">
                     <div id="map"></div>
                 </div>
-                <!-- Prediction Result (Moved to the right side for Distance input) -->
+                <!-- Prediction Result -->
                 <div id="result" class="result mt-3"></div>
             </div>
         </div>
@@ -230,7 +255,8 @@
             porto: { lat: 41.15, lng: -8.62, zoom: 13 },
             hongkong: { lat: 22.3193, lng: 114.1694, zoom: 12 }
         };
-        let currentInputMethod = 'map'; // Default to Map input method
+        let currentInputMethod = 'map';
+        let currentCity = 'porto'; // Track the current city
 
         function toggleInput(method) {
             currentInputMethod = method;
@@ -245,11 +271,14 @@
         }
 
         function setCity(city) {
+            currentCity = city; // Update the current city
             if (map) {
                 const { lat, lng, zoom } = cities[city];
                 map.setView([lat, lng], zoom);
                 clearMap();
             }
+            // Show/hide Hong Kong reminder
+            document.getElementById('hongKongReminder').style.display = (city === 'hongkong') ? 'block' : 'none';
         }
 
         function initMap(city) {
