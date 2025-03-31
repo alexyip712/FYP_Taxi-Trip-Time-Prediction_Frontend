@@ -43,7 +43,7 @@
             border-radius: 5px;
         }
         .hidden {
-            display: none;
+            display: none !important; /* Ensure hidden class takes precedence */
         }
         .instructions {
             font-style: italic;
@@ -86,9 +86,6 @@
             display: grid;
             gap: 1rem;
         }
-        #hongKongReminder {
-            display: none;
-        }
     </style>
 </head>
 <body>
@@ -129,7 +126,7 @@
                         </div>
 
                         <!-- Distance Inputs -->
-                        <div id="distance_inputs" class="hidden grid-container">
+                        <div id="distance_inputs" class="grid-container hidden">
                             <div class="row">
                                 <div class="col-md-6">
                                     <label for="time_distance" class="form-label">Time of Day:</label>
@@ -194,8 +191,8 @@
                                     </select>
                                 </div>
                             </div>
-                            <!-- Select City Section (Buttons Only) -->
-                            <div class="form-section">
+                            <!-- Select City Section -->
+                            <div id="map_select_city" class="form-section">
                                 <label class="form-label">Select City:</label>
                                 <div class="btn-group" role="group">
                                     <button type="button" class="btn btn-outline-primary" onclick="setCity('porto')">Porto</button>
@@ -203,10 +200,11 @@
                                 </div>
                             </div>
                             <!-- Hong Kong Reminder -->
-                            <div id="hongKongReminder" class="alert alert-warning mt-2">
+                            <div id="hongKongReminder" class="alert alert-warning mt-2 hidden">
                                 <strong>Reminder:</strong> The prediction may not be accurate for Hong Kong as the model was not trained on Hong Kong data.
                             </div>
-                            <div class="row">
+                            <!-- Map Instructions and Controls -->
+                            <div id="map_controls" class="row">
                                 <div class="col-12">
                                     <div class="instructions">
                                         Click once to set the start point, click again to set the end point. Click a third time to reset.
@@ -253,21 +251,30 @@
             currentInputMethod = method;
             const distanceInputs = document.getElementById('distance_inputs');
             const mapInputs = document.getElementById('map_inputs');
+            const mapSelectCity = document.getElementById('map_select_city');
+            const hongKongReminder = document.getElementById('hongKongReminder');
+            const mapControls = document.getElementById('map_controls');
             const mapContainer = document.getElementById('map_container');
             const result = document.getElementById('result');
 
-            // Hide all inputs and map container first
+            // Hide everything first
             distanceInputs.classList.add('hidden');
             mapInputs.classList.add('hidden');
+            mapSelectCity.classList.add('hidden');
+            hongKongReminder.classList.add('hidden');
+            mapControls.classList.add('hidden');
             mapContainer.classList.add('hidden');
             result.classList.remove('result-large');
 
-            // Show the relevant inputs based on the method
+            // Show relevant elements based on the method
             if (method === 'distance') {
                 distanceInputs.classList.remove('hidden');
                 result.classList.add('result-large');
             } else if (method === 'map') {
                 mapInputs.classList.remove('hidden');
+                mapSelectCity.classList.remove('hidden');
+                hongKongReminder.classList.toggle('hidden', currentCity !== 'hongkong');
+                mapControls.classList.remove('hidden');
                 mapContainer.classList.remove('hidden');
                 if (!map) initMap('porto');
             }
@@ -280,7 +287,7 @@
                 map.setView([lat, lng], zoom);
                 clearMap();
             }
-            document.getElementById('hongKongReminder').style.display = (city === 'hongkong') ? 'block' : 'none';
+            document.getElementById('hongKongReminder').classList.toggle('hidden', city !== 'hongkong');
         }
 
         function initMap(city) {
