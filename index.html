@@ -43,7 +43,7 @@
             border-radius: 5px;
         }
         .hidden {
-            display: none !important; /* Ensure hidden class takes precedence */
+            display: none !important;
         }
         .instructions {
             font-style: italic;
@@ -86,6 +86,17 @@
             display: grid;
             gap: 1rem;
         }
+        .model-description {
+            margin-top: 10px;
+            padding: 10px;
+            background-color: #e9ecef;
+            border-radius: 5px;
+            font-size: 0.9rem;
+        }
+        .dark-mode .model-description {
+            background-color: #3a3a3a;
+            color: #ddd;
+        }
     </style>
 </head>
 <body>
@@ -119,10 +130,16 @@
                         <!-- Select Model Section -->
                         <div class="form-section">
                             <label for="model" class="form-label">Select Model:</label>
-                            <select id="model" name="model" class="form-select" required>
+                            <select id="model" name="model" class="form-select" required onchange="updateModelDescription()">
                                 <option value="Random Forest">Random Forest</option>
                                 <option value="Gradient Boosting">Gradient Boosting</option>
+                                <option value="Neural Network">Neural Network</option>
+                                <option value="Ensemble (RF+GB)">Ensemble (RF+GB)</option>
                             </select>
+                            <!-- Model Description -->
+                            <div id="modelDescription" class="model-description">
+                                A tree-based ensemble model that combines multiple decision trees to improve prediction accuracy. Good for capturing non-linear relationships.
+                            </div>
                         </div>
 
                         <!-- Distance Inputs -->
@@ -246,6 +263,19 @@
         };
         let currentInputMethod = 'map';
         let currentCity = 'porto';
+
+        // Model descriptions
+        const modelDescriptions = {
+            "Random Forest": "A tree-based ensemble model that combines multiple decision trees to improve prediction accuracy. Good for capturing non-linear relationships. (R²: 0.5274)",
+            "Gradient Boosting": "An ensemble model that builds trees sequentially, with each tree correcting the errors of the previous ones. Effective for complex datasets. (R²: 0.5314)",
+            "Neural Network": "A multi-layer perceptron model that learns complex patterns through interconnected layers of nodes. Suitable for non-linear relationships. (R²: 0.5254)",
+            "Ensemble (RF+GB)": "A hybrid model combining Random Forest and Gradient Boosting with a weighted average. Offers the best performance by leveraging the strengths of both models. (R²: 0.5322)"
+        };
+
+        function updateModelDescription() {
+            const selectedModel = document.getElementById('model').value;
+            document.getElementById('modelDescription').innerText = modelDescriptions[selectedModel];
+        }
 
         function toggleInput(method) {
             currentInputMethod = method;
@@ -428,8 +458,11 @@
             document.body.classList.add('dark-mode');
         }
 
-        // Initialize with Map input method
-        window.onload = () => toggleInput('map');
+        // Initialize with Map input method and model description
+        window.onload = () => {
+            toggleInput('map');
+            updateModelDescription();
+        };
     </script>
 </body>
 </html>
