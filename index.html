@@ -226,19 +226,22 @@
                                         Click once to set the start point, click again to set the end point. Click a third time to reset.
                                     </div>
                                     <div class="distance-display" id="distanceDisplay"></div>
-                                    <div class="row">
-                                        <div class="mt-2 col-4">
-                                        <button type="button" class="btn btn-secondary float-right" onclick="clearMap()">Clear Map</button>    
-                                        </div>
-                                        <input type="hidden" id="distance_km_map" name="distance_km_map" value="">
-                                        <div class="mt-2 col-4">
-                                            <button type="submit" class="btn btn-primary mt-3 float-left">Predict Trip Time</button>
-                                        </div>
-                                    </div>
+                                    
                                 </div>
+                                
                             </div>
                         </div>
-                        
+                        <div class="row">
+                            <div class="mt-2 col-4">
+                                <button type="submit" class="btn btn-primary">Predict Trip Time</button>
+                            </div>
+                            <input type="hidden" id="distance_km_map" name="distance_km_map" value="">
+                            <div class="mt-2 col-4"></div>
+                            <div class="mt-2 col-4">
+                                <button id="map_inputs" type="button" class="btn btn-secondary" onclick="clearMap()">Clear Map</button>    
+                                            
+                            </div>
+                        </div>
                         
                     </form>
                 </div>
@@ -262,8 +265,8 @@
     <script>
         let map, startMarker, endMarker, routeLine;
         const cities = {
-            porto: { lat: 41.15, lng: -8.62, zoom: 11 },
-            hongkong: { lat: 22.3193, lng: 114.1694, zoom: 12 }
+            porto: { lat: 41.15, lng: -8.62, zoom: 12 },
+            hongkong: { lat: 22.3193, lng: 114.1694, zoom: 11}
         };
         let currentInputMethod = 'map';
         let currentCity = 'porto';
