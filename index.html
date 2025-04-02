@@ -134,7 +134,6 @@
                                 <option value="Random Forest">Random Forest</option>
                                 <option value="Gradient Boosting">Gradient Boosting</option>
                                 <option value="Neural Network">Neural Network</option>
-                                <option value="Ensemble (RF+GB)">Ensemble (RF+GB)</option>
                             </select>
                             <!-- Model Description -->
                             <div id="modelDescription" class="model-description">
@@ -228,14 +227,15 @@
                                     </div>
                                     <div class="distance-display" id="distanceDisplay"></div>
                                     <div class="mt-2">
-                                        <button type="button" class="btn btn-secondary" onclick="clearMap()">Clear Map</button>
+                                    <button type="button" class="btn btn-secondary float-right" onclick="clearMap()">Clear Map</button>    
                                     </div>
                                     <input type="hidden" id="distance_km_map" name="distance_km_map" value="">
+                                    <button type="submit" class="btn btn-primary mt-3 float-left">Predict Trip Time</button>
                                 </div>
                             </div>
                         </div>
-
-                        <button type="submit" class="btn btn-primary mt-3">Predict Trip Time</button>
+                        
+                        
                     </form>
                 </div>
             </div>
@@ -258,7 +258,7 @@
     <script>
         let map, startMarker, endMarker, routeLine;
         const cities = {
-            porto: { lat: 41.15, lng: -8.62, zoom: 13 },
+            porto: { lat: 41.15, lng: -8.62, zoom: 11 },
             hongkong: { lat: 22.3193, lng: 114.1694, zoom: 12 }
         };
         let currentInputMethod = 'map';
@@ -269,7 +269,6 @@
             "Random Forest": "A tree-based ensemble model that combines multiple decision trees to improve prediction accuracy. Good for capturing non-linear relationships. (R²: 0.5274)",
             "Gradient Boosting": "An ensemble model that builds trees sequentially, with each tree correcting the errors of the previous ones. Effective for complex datasets. (R²: 0.5314)",
             "Neural Network": "A multi-layer perceptron model that learns complex patterns through interconnected layers of nodes. Suitable for non-linear relationships. (R²: 0.5254)",
-            "Ensemble (RF+GB)": "A hybrid model combining Random Forest and Gradient Boosting with a weighted average. Offers the best performance by leveraging the strengths of both models. (R²: 0.5322)"
         };
 
         function updateModelDescription() {
