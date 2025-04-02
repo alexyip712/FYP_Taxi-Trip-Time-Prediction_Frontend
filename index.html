@@ -220,17 +220,21 @@
                                 <strong>Reminder:</strong> The prediction may not be accurate for Hong Kong as the model was not trained on Hong Kong data.
                             </div>
                             <!-- Map Instructions and Controls -->
-                            <div id="map_controls" class="row">
+                            <div  class="row">
                                 <div class="col-12">
-                                    <div class="instructions">
+                                    <div id="map_controls" class="instructions">
                                         Click once to set the start point, click again to set the end point. Click a third time to reset.
                                     </div>
                                     <div class="distance-display" id="distanceDisplay"></div>
-                                    <div class="mt-2">
-                                    <button type="button" class="btn btn-secondary float-right" onclick="clearMap()">Clear Map</button>    
+                                    <div class="row">
+                                        <div class="mt-2 col-4">
+                                        <button type="button" class="btn btn-secondary float-right" onclick="clearMap()">Clear Map</button>    
+                                        </div>
+                                        <input type="hidden" id="distance_km_map" name="distance_km_map" value="">
+                                        <div class="mt-2 col-4">
+                                            <button type="submit" class="btn btn-primary mt-3 float-left">Predict Trip Time</button>
+                                        </div>
                                     </div>
-                                    <input type="hidden" id="distance_km_map" name="distance_km_map" value="">
-                                    <button type="submit" class="btn btn-primary mt-3 float-left">Predict Trip Time</button>
                                 </div>
                             </div>
                         </div>
