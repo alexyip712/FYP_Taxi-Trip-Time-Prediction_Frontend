@@ -97,6 +97,15 @@
             background-color: #3a3a3a;
             color: #ddd;
         }
+        .button-group {
+            display: flex;
+            justify-content: space-between;
+            gap: 10px;
+        }
+        .right-buttons {
+            display: flex;
+            gap: 10px;
+        }
     </style>
 </head>
 <body>
@@ -110,7 +119,7 @@
 
         <!-- Backend Wake-Up Reminder -->
         <div class="alert alert-info mb-4" role="alert">
-            <strong>Note:</strong> If the website is not responding, the backend service may be waking up. This can take up to a minute to get back online.
+            <strong>Note:</strong> If the website is not responding, please try to refresh after a minute. The backend service may be waking up, this can take up to a minute to get back online. 
         </div>
 
         <div class="row">
@@ -122,8 +131,8 @@
                         <div class="form-section">
                             <label class="form-label">Input Method:</label>
                             <div class="btn-group" role="group">
-                                <button type="button" class="btn btn-outline-primary" onclick="toggleInput('map')">Map</button>
-                                <button type="button" class="btn btn-outline-primary" onclick="toggleInput('distance')">Distance</button>
+                                <button type="button" class="btn btn-outline-primary" onclick="toggleInput('map'),clearAll()">Map</button>
+                                <button type="button" class="btn btn-outline-primary" onclick="toggleInput('distance'),clearAll()">Distance</button>
                             </div>
                         </div>
 
@@ -131,13 +140,13 @@
                         <div class="form-section">
                             <label for="model" class="form-label">Select Model:</label>
                             <select id="model" name="model" class="form-select" required onchange="updateModelDescription()">
-                                <option value="Random Forest">Random Forest</option>
                                 <option value="Gradient Boosting">Gradient Boosting</option>
+                                <option value="Random Forest">Random Forest</option>                                
                                 <option value="Neural Network">Neural Network</option>                               
                             </select>
                             <!-- Model Description -->
                             <div id="modelDescription" class="model-description">
-                                A tree-based ensemble model that combines multiple decision trees to improve prediction accuracy. Good for capturing non-linear relationships.
+                                An ensemble model that builds trees sequentially, with each tree correcting the errors of the previous ones. Effective for complex datasets. Best performance (R²: 0.5314)
                             </div>
                         </div>
 
@@ -146,11 +155,12 @@
                             <div class="row">
                                 <div class="col-md-6">
                                     <label for="time_distance" class="form-label">Time of Day:</label>
-                                    <input type="time" id="time_distance" name="time_distance" class="form-control" placeholder="e.g., 14:30" title="Select the time of day (24-hour format)">
+                                    <input type="time" id="time_distance" name="time_distance" class="form-control" placeholder="e.g., 14:30" title="Select the time of day (24-hour format)" >
                                 </div>
                                 <div class="col-md-6">
                                     <label for="day_of_week_distance" class="form-label">Day of Week:</label>
-                                    <select id="day_of_week_distance" name="day_of_week_distance" class="form-select">
+                                    <select id="day_of_week_distance" name="day_of_week_distance" class="form-select" >
+                                        <option value="" disabled selected>Select a day</option>
                                         <option value="0">Monday</option>
                                         <option value="1">Tuesday</option>
                                         <option value="2">Wednesday</option>
@@ -164,7 +174,7 @@
                             <div class="row">
                                 <div class="col-md-6">
                                     <label for="distance_km_distance" class="form-label">Distance (km):</label>
-                                    <input type="number" id="distance_km_distance" name="distance_km_distance" class="form-control" min="0" max="1000" step="0.1" placeholder="e.g., 5.5" title="Enter distance in kilometers (0-1000 km)">
+                                    <input type="number" id="distance_km_distance" name="distance_km_distance" class="form-control" min="0" max="400" step="0.1" placeholder="Enter distance < 400 km" title="Enter distance in kilometers (0-400 km)" >
                                 </div>
                                 <div class="col-md-6">
                                     <label for="call_type_distance" class="form-label">Call Type:</label>
@@ -182,11 +192,12 @@
                             <div class="row">
                                 <div class="col-md-6">
                                     <label for="time_map" class="form-label">Time of Day:</label>
-                                    <input type="time" id="time_map" name="time_map" class="form-control" placeholder="e.g., 14:30" title="Select the time of day (24-hour format)">
+                                    <input type="time" id="time_map" name="time_map" class="form-control" placeholder="e.g., 14:30" title="Select the time of day (24-hour format)" >
                                 </div>
                                 <div class="col-md-6">
                                     <label for="day_of_week_map" class="form-label">Day of Week:</label>
-                                    <select id="day_of_week_map" name="day_of_week_map" class="form-select">
+                                    <select id="day_of_week_map" name="day_of_week_map" class="form-select" >
+                                        <option value="" disabled selected>Select a day</option>
                                         <option value="0">Monday</option>
                                         <option value="1">Tuesday</option>
                                         <option value="2">Wednesday</option>
@@ -223,18 +234,21 @@
                             <div id="map_controls" class="row">
                                 <div class="col-12">
                                     <div class="instructions">
-                                        Click once to set the start point, click again to set the end point. Click a third time to reset.
+                                        Click once to set the start point, click again to set the end point. Click a third time or Clear Map button to reset.
                                     </div>
                                     <div class="distance-display" id="distanceDisplay"></div>
-                                    <div class="mt-2">
-                                        <button type="button" class="btn btn-secondary" onclick="clearMap()">Clear Map</button>
-                                    </div>
                                     <input type="hidden" id="distance_km_map" name="distance_km_map" value="">
                                 </div>
                             </div>
                         </div>
 
-                        <button type="submit" class="btn btn-primary mt-3">Predict Trip Time</button>
+                        <div class="button-group mt-3">
+                            <button type="submit" class="btn btn-primary">Predict Trip Time</button>
+                            <div class="right-buttons">
+                                <button type="button" id="clearAllButton" class="btn btn-secondary hidden" onclick="clearAll()">Clear All</button>
+                                <button type="button" id="clearMapButton" class="btn btn-secondary hidden" onclick="clearMap()">Clear Map</button>
+                            </div>
+                        </div>
                     </form>
                 </div>
             </div>
@@ -243,10 +257,10 @@
             <div class="col-md-6">
                 <!-- Map -->
                 <div id="map_container">
-                    <div id="map"></div>
+                    <div id="map" class="mb-3"></div>
                 </div>
                 <!-- Prediction Result -->
-                <div id="result" class="result mt-3"></div>
+                <div id="result" class="result"></div>
             </div>
         </div>
     </div>
@@ -284,6 +298,8 @@
             const mapControls = document.getElementById('map_controls');
             const mapContainer = document.getElementById('map_container');
             const result = document.getElementById('result');
+            const clearMapButton = document.getElementById('clearMapButton');
+            const clearAllButton = document.getElementById('clearAllButton');
 
             // Hide everything first
             distanceInputs.classList.add('hidden');
@@ -293,6 +309,8 @@
             mapControls.classList.add('hidden');
             mapContainer.classList.add('hidden');
             result.classList.remove('result-large');
+            clearMapButton.classList.add('hidden');
+            clearAllButton.classList.remove('hidden');
 
             // Show relevant elements based on the method
             if (method === 'distance') {
@@ -304,6 +322,8 @@
                 hongKongReminder.classList.toggle('hidden', currentCity !== 'hongkong');
                 mapControls.classList.remove('hidden');
                 mapContainer.classList.remove('hidden');
+                clearMapButton.classList.remove('hidden');
+                clearAllButton.classList.remove('hidden');
                 if (!map) initMap('porto');
             }
         }
@@ -355,6 +375,14 @@
             const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
             const distance = R * c;
 
+            if (distance > 400) {
+                alert('Distance exceeds 400 km limit. Please select points closer together.');
+                clearMap();
+                return;
+            }
+
+            document.documentElement.scrollTop = 0;
+
             document.getElementById('distance_km_map').value = distance.toFixed(2);
             document.getElementById('distanceDisplay').innerText = `Calculated Distance: ${distance.toFixed(2)} km`;
         }
@@ -384,6 +412,26 @@
             document.getElementById('distanceDisplay').innerText = '';
         }
 
+        function clearAll() {
+            // Clear map
+            clearMap();
+            // Reset distance inputs
+            document.getElementById('time_distance').value = '';
+            document.getElementById('day_of_week_distance').value = '';
+            document.getElementById('distance_km_distance').value = '';
+            document.getElementById('call_type_distance').value = 'C';
+            // Reset map inputs
+            document.getElementById('time_map').value = '';
+            document.getElementById('day_of_week_map').value = '';
+            document.getElementById('call_type_map').value = 'C';
+            // Clear result
+            document.getElementById('result').innerHTML = '';
+            document.getElementById('result').style.display = 'none';
+            // Reset model to default
+            document.getElementById('model').value = 'Gradient Boosting';
+            updateModelDescription();
+        }
+
         async function predictTripTime(event) {
             event.preventDefault();
             const method = currentInputMethod;
@@ -391,22 +439,50 @@
             let data;
 
             if (method === 'distance') {
+                const time = document.getElementById('time_distance').value;
+                const dayOfWeek = document.getElementById('day_of_week_distance').value;
+                const distanceKm = document.getElementById('distance_km_distance').value;
+
+                if (!time || !dayOfWeek || !distanceKm) {
+                    alert('Please fill in all required fields: Time of Day, Day of Week, and Distance.');
+                    return;
+                }
+
+                if (parseFloat(distanceKm) > 400) {
+                    alert('Distance cannot exceed 400 km.');
+                    return;
+                }
+
                 data = {
                     model: selectedModel,
                     input_method: 'distance',
-                    time: document.getElementById('time_distance').value,
-                    distance_km: document.getElementById('distance_km_distance').value,
+                    time: time,
+                    distance_km: distanceKm,
                     call_type: document.getElementById('call_type_distance').value,
-                    day_of_week: document.getElementById('day_of_week_distance').value
+                    day_of_week: dayOfWeek
                 };
             } else {
+                const time = document.getElementById('time_map').value;
+                const dayOfWeek = document.getElementById('day_of_week_map').value;
+                const distanceKm = document.getElementById('distance_km_map').value;
+
+                if (!time || !dayOfWeek) {
+                    alert('Please fill in all required fields: Time of Day and Day of Week.');
+                    return;
+                }
+
+                if (!startMarker || !endMarker || !distanceKm) {
+                    alert('Please select two points on the map to calculate the distance.');
+                    return;
+                }
+
                 data = {
                     model: selectedModel,
                     input_method: 'map',
-                    time: document.getElementById('time_map').value,
-                    distance_km: document.getElementById('distance_km_map').value,
+                    time: time,
+                    distance_km: distanceKm,
                     call_type: document.getElementById('call_type_map').value,
-                    day_of_week: document.getElementById('day_of_week_map').value
+                    day_of_week: dayOfWeek
                 };
             }
 
@@ -419,11 +495,15 @@
                 const result = await response.json();
 
                 if (response.ok) {
+                    const totalMinutes = Math.round(result.prediction);
+                    const hours = Math.floor(totalMinutes / 60);
+                    const minutes = totalMinutes % 60;
+                    const timeString = `(${hours} hour${hours !== 1 ? 's' : ''} ${minutes} min)`;
                     document.getElementById('result').style.display = 'block';
                     document.getElementById('result').innerHTML = `
                         <h3>Prediction Result</h3>
                         <p>Model: ${selectedModel}</p>
-                        <p><strong>Estimated Trip Time: ${result.prediction.toFixed(2)} minutes</strong></p>
+                        <p><strong>Estimated Trip Time: ${result.prediction.toFixed(2)} minutes ${timeString}</strong></p>
                         <h4>Your Inputs:</h4>
                         <ul>
                             <li>Day of Week: ${result.user_inputs['Day of Week']}</li>
